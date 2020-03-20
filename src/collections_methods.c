@@ -90,7 +90,7 @@
     }
 
 #define ARRAY_NEW(name, size)                                              \
-    zend_array* (name) = (zend_array*)emalloc(sizeof(zend_array));         \
+    zend_array* (name) = emalloc(sizeof(zend_array));                      \
     zend_hash_init(name, size, NULL, ZVAL_PTR_DTOR, 0)
 #define ARRAY_NEW_EX(name, other)                                          \
     ARRAY_NEW(name, zend_hash_num_elements(other))
@@ -173,8 +173,7 @@ static zend_always_inline void array_update_bucket(zend_array* ht, Bucket* bucke
 static zend_always_inline zend_object* create_object(zend_class_entry* ce,
     zend_object_handlers* handlers)
 {
-    zend_object* obj = (zend_object*)emalloc(sizeof(zend_object) +
-        zend_object_properties_size(ce));
+    zend_object* obj = emalloc(sizeof(zend_object) + zend_object_properties_size(ce));
     zend_object_std_init(obj, ce);
     object_properties_init(obj, ce);
     obj->handlers = handlers;
@@ -207,7 +206,7 @@ static zend_always_inline zend_array* array_group_fetch(zend_array* ht, zval* ke
         zval* group_val = zend_hash_index_find(ht, Z_LVAL_P(key));
         if (UNEXPECTED(group_val == NULL)) {
             zval tmp_val;
-            group = (zend_array*)emalloc(sizeof(zend_array));
+            group = emalloc(sizeof(zend_array));
             zend_hash_init(group, 8, NULL, ZVAL_PTR_DTOR, 0);
             ZVAL_ARR(&tmp_val, group);
             zend_hash_index_add(ht, Z_LVAL_P(key), &tmp_val);
@@ -221,7 +220,7 @@ static zend_always_inline zend_array* array_group_fetch(zend_array* ht, zval* ke
         zval* group_val = zend_hash_find(ht, Z_STR_P(key));
         if (UNEXPECTED(group_val == NULL)) {
             zval tmp_val;
-            group = (zend_array*)emalloc(sizeof(zend_array));
+            group = emalloc(sizeof(zend_array));
             zend_hash_init(group, 8, NULL, ZVAL_PTR_DTOR, 0);
             ZVAL_ARR(&tmp_val, group);
             zend_hash_add(ht, Z_STR_P(key), &tmp_val);
@@ -558,7 +557,7 @@ static zend_always_inline void array_slice_by(zend_array* ht, zend_array* other,
         }
         return;
     }
-    Bucket* ref_this = (Bucket*)malloc(num_this * sizeof(Bucket));
+    Bucket* ref_this = malloc(num_this * sizeof(Bucket));
     compare_func_t cmp = NULL;
     equal_check_func_t eql;
     uint32_t idx = 0;
@@ -575,7 +574,7 @@ static zend_always_inline void array_slice_by(zend_array* ht, zend_array* other,
     CMP_G = cmp;
     zend_sort(ref_this, num_this, sizeof(Bucket), packed ? bucket_compare_with_idx : cmp,
         (swap_func_t)zend_hash_bucket_packed_swap);
-    Bucket* ref_other = (Bucket*)malloc(num_other * sizeof(Bucket));
+    Bucket* ref_other = malloc(num_other * sizeof(Bucket));
     uint32_t idx_other = 0;
     ZEND_HASH_FOREACH_BUCKET(other, Bucket* bucket)
         Bucket* dest = &ref_other[idx_other++];
@@ -694,7 +693,7 @@ void collection_write_dimension(zval* object, zval* offset, zval* value)
 zobj_write_prop_ret_t collection_write_property(zval* object, zval* member, zval* value, void** unused)
 {
     collection_write_dimension(object, member, value);
-#if PHP_VERSION_ID > 70400
+#if PHP_VERSION_ID >= 70400
     return value;
 #endif
 }
@@ -1005,7 +1004,7 @@ PHP_METHOD(Collection, binarySearchBy)
     }
     INIT_FCI(&fci, 2);
     uint32_t range = to_idx - from_idx;
-    Bucket* ref = (Bucket*)malloc(range * sizeof(Bucket));
+    Bucket* ref = malloc(range * sizeof(Bucket));
     compare_func_t cmp = NULL;
     uint32_t idx = 0;
     Bucket* bucket = current->arData + from_idx;
@@ -1049,7 +1048,7 @@ PHP_METHOD(Collection, chunked)
     zend_array* chunk = NULL;
     ZEND_HASH_FOREACH_BUCKET(current, Bucket* bucket)
         if (num_remaining == 0) {
-            chunk = (zend_array*)emalloc(sizeof(zend_array));
+            chunk = emalloc(sizeof(zend_array));
             zend_hash_init(chunk, 8, NULL, ZVAL_PTR_DTOR, 0);
             num_remaining = size;
         }
@@ -1286,7 +1285,7 @@ PHP_METHOD(Collection, distinct)
     compare_func_t cmp = NULL;
     equal_check_func_t eql = NULL;
     uint32_t num_elements = zend_hash_num_elements(current);
-    Bucket* ref = (Bucket*)malloc(num_elements * sizeof(Bucket));
+    Bucket* ref = malloc(num_elements * sizeof(Bucket));
     ARRAY_CLONE(distinct, current);
     uint32_t idx = 0;
     ZEND_HASH_FOREACH_BUCKET(distinct, Bucket* bucket)
@@ -1316,7 +1315,7 @@ PHP_METHOD(Collection, distinctBy)
     compare_func_t cmp = NULL;
     equal_check_func_t eql = NULL;
     uint32_t num_elements = zend_hash_num_elements(current);
-    Bucket* ref = (Bucket*)malloc(num_elements * sizeof(Bucket));
+    Bucket* ref = malloc(num_elements * sizeof(Bucket));
     ARRAY_CLONE(distinct, current);
     uint32_t idx = 0;
     INIT_FCI(&fci, 2);
@@ -2737,7 +2736,7 @@ PHP_METHOD(Collection, sortBy)
     zend_array* current = THIS_COLLECTION;
     SEPARATE_CURRENT_COLLECTION(current);
     uint32_t num_elements = zend_hash_num_elements(current);
-    zval* sort_by = (zval*)malloc(num_elements * sizeof(zval));
+    zval* sort_by = malloc(num_elements * sizeof(zval));
     INIT_FCI(&fci, 2);
     compare_func_t cmp = NULL;
     uint32_t idx = 0;
@@ -2775,7 +2774,7 @@ PHP_METHOD(Collection, sortByDescending)
     zend_array* current = THIS_COLLECTION;
     SEPARATE_CURRENT_COLLECTION(current);
     uint32_t num_elements = zend_hash_num_elements(current);
-    zval* sort_by = (zval*)malloc(num_elements * sizeof(zval));
+    zval* sort_by = malloc(num_elements * sizeof(zval));
     INIT_FCI(&fci, 2);
     compare_func_t cmp = NULL;
     uint32_t idx = 0;
@@ -2874,7 +2873,7 @@ PHP_METHOD(Collection, sortedBy)
     zend_array* current = THIS_COLLECTION;
     ARRAY_CLONE(sorted, current);
     uint32_t num_elements = zend_hash_num_elements(current);
-    zval* sort_by = (zval*)malloc(num_elements * sizeof(zval));
+    zval* sort_by = malloc(num_elements * sizeof(zval));
     INIT_FCI(&fci, 2);
     compare_func_t cmp = NULL;
     uint32_t idx = 0;
@@ -2913,7 +2912,7 @@ PHP_METHOD(Collection, sortedByDescending)
     zend_array* current = THIS_COLLECTION;
     ARRAY_CLONE(sorted, current);
     uint32_t num_elements = zend_hash_num_elements(current);
-    zval* sort_by = (zval*)malloc(num_elements * sizeof(zval));
+    zval* sort_by = malloc(num_elements * sizeof(zval));
     INIT_FCI(&fci, 2);
     compare_func_t cmp = NULL;
     uint32_t idx = 0;
@@ -3104,7 +3103,7 @@ PHP_METHOD(Collection, takeLast)
     zend_bool packed = HT_IS_PACKED(current);
     uint32_t idx = current->nNumUsed;
     zend_long num_taken = n;
-    Bucket** taken = (Bucket**)malloc(num_taken * sizeof(Bucket*));
+    Bucket** taken = malloc(num_taken * sizeof(Bucket*));
     // Note that the original element orders should be preserved as in kotlin.
     for (; num_taken > 0 && idx > 0; --idx) {
         Bucket* bucket = current->arData + idx - 1;
@@ -3138,7 +3137,7 @@ PHP_METHOD(Collection, takeLastWhile)
     ARRAY_NEW(new_collection, 8);
     zend_bool packed = HT_IS_PACKED(current);
     uint32_t num_elements = zend_hash_num_elements(current);
-    Bucket** taken = (Bucket**)malloc(num_elements * sizeof(Bucket*));
+    Bucket** taken = malloc(num_elements * sizeof(Bucket*));
     ZEND_HASH_REVERSE_FOREACH_BUCKET(current, Bucket* bucket)
         CALLBACK_KEYVAL_INVOKE(params, bucket);
         if (zend_is_true(&retval)) {
@@ -3240,7 +3239,7 @@ PHP_METHOD(Collection, union)
     uint32_t num_elements = zend_hash_num_elements(new_collection);
     compare_func_t cmp = NULL;
     equal_check_func_t eql = NULL;
-    Bucket* ref = (Bucket*)malloc(num_elements * sizeof(Bucket));
+    Bucket* ref = malloc(num_elements * sizeof(Bucket));
     uint32_t idx = 0;
     ZEND_HASH_FOREACH_BUCKET(new_collection, Bucket* bucket)
         if (UNEXPECTED(cmp == NULL)) {
