@@ -1,7 +1,10 @@
-dist: xenial
-group: edge
-
 language: php
+
+os:
+  - linux
+  - osx
+
+dist: bionic
 
 php:
   - 7.1
@@ -14,3 +17,4 @@ script:
   - ./configure
   - make
   - make test
+
