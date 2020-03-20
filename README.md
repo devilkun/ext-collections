@@ -1,6 +1,6 @@
 # ext-collections
 
-[![Travis-CI](https://travis-ci.org/CismonX/ext-collections.svg?branch=master)](https://travis-ci.org/CismonX/ext-collections)
+[![Travis-CI](https://travis-ci.com/CismonX/ext-collections.svg?branch=master)](https://travis-ci.com/CismonX/ext-collections)
 [![MIT license](https://img.shields.io/badge/licence-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
 ## 1. Introduction
