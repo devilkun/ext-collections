@@ -11,6 +11,9 @@ php:
 script:
   - phpize
   - ./configure
-  - make
+  - make EXTRA_CFLAGS='-coverage' EXTRA_LDFLAGS='-fprofile-arcs'
   - make test
+  - gcov --object-directory=src/.libs src/*.c
 
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
