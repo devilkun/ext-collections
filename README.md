@@ -43,7 +43,7 @@ $names = Collection::init($employees)
 
 ### 2.1 Installation
 
-Like other PHP extensions, ext-collections can be built with a few commands:
+Like other PHP extensions, ext-collections can be built and installed with a few commands:
 
 ```bash
 phpize
@@ -58,16 +58,18 @@ Include it in your PHP configuration file to enable this extension:
 extension=collections.so
 ```
 
-### 2.2 API reference
+Building on Windows is not as convenient, however, pre-built binaries for Windows are provided in the [releases](https://github.com/CismonX/ext-collections/releases). If you want to build it yourself, follow the [official PHP wiki](https://wiki.php.net/internals/windows/stepbystepbuild_sdk_2).
 
-See [stubs](stubs/) directory for signature of all classes and methods of this extension, with PHPDoc. They can also serve as IDE helper.
+### 2.2 API Reference
 
-### 2.3 PHP-style access
+See [stubs](stubs/) directory for signatures of all classes and methods of this extension, with PHPDoc. They can also serve as IDE helper.
+
+### 2.3 PHP-style Access
 
 The `Collection` class implements `ArrayAccess` and `Countable` interface internally, you can treat an instance of `Collection` as an `ArrayObject`.
 
 * The `isset()`, `unset()` keywords can be used on elements of `Collection`.
-* Elements can be accessed via property and bracket expression.
+* Elements can be accessed via property or bracket expression.
 * `empty()`, `count()` can be used on instance of `Collection`.
 * Elements can be traversed via `foreach()` keyword.
 
@@ -76,7 +78,7 @@ The `Collection` class implements `ArrayAccess` and `Countable` interface intern
 * The `Collection::xxxTo()` methods will preserve the original key-value pairs of destination `Collection` when keys collide.
 * Some methods of `Collection` involves comparing two of its elements, which accepts `$flags` as one of its arguments. When these methods are being invoked, make sure all elements are of the same type (numeric/string/others), otherwise you're likely to get a segfault.
 
-### 3.1 Copy-on-write mechanism
+### 3.1 Copy-on-write Mechanism
 
 Class `Collection` does not introduce new data structures internally. Instead, it only holds a pointer to a `zend_array`, and all its methods works directly on top of `zend_array`. Which means conversion between `Collection` and `array` does not involve copying, until write operation is performed on one of the duplicates.
 
