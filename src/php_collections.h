@@ -16,7 +16,7 @@
 extern zend_module_entry collections_module_entry;
 #define phpext_collections_ptr          &collections_module_entry
 
-#define PHP_COLLECTIONS_VERSION         "0.1.1"
+#define PHP_COLLECTIONS_VERSION         "0.1.2"
 
 #ifdef PHP_WIN32
 #define PHP_COLLECTIONS_API             __declspec(dllexport)
@@ -28,6 +28,8 @@ extern zend_module_entry collections_module_entry;
 
 #if PHP_VERSION_ID < 70100
 #error "This extension requires PHP 7.1 and above."
+#elif PHP_VERSION_ID >= 80000
+#error "This extension does not yet support PHP 8.0 (which is under development)."
 #endif
 
 #if PHP_VERSION_ID >= 70400
